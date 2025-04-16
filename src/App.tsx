@@ -154,10 +154,11 @@ function App() {
     }
   }
 
-  const loadPredefinedStory = async (storyName: string) => {
+  const loadPredefinedStory = async (storyPath: string, categoryName: string) => {
     try {
       // Primero intentamos cargar desde localStorage
-      const cachedStory = localStorage.getItem(`story_${storyName}`)
+      const cacheKey = `story_${storyPath}`
+      const cachedStory = localStorage.getItem(cacheKey)
       let text: string
 
       if (cachedStory) {
@@ -165,27 +166,37 @@ function App() {
         console.log('Cargando historia desde caché local')
       } else {
         // Si no está en caché, la cargamos desde GitHub
-        console.log('Cargando historia desde GitHub')
-        const response = await fetch(`https://raw.githubusercontent.com/busiris2014/7506Condor1C2014/master/datos2011/trunk/libros/${storyName}`)
+        console.log('Cargando historia desde GitHub:', storyPath)
+        
+        // Construimos la URL para el contenido raw
+        const rawUrl = storyPath.replace('https://api.github.com/repos/NoeCanoNufago/cuentosMagicos/contents/', 
+                                        'https://raw.githubusercontent.com/NoeCanoNufago/cuentosMagicos/main/')
+        const response = await fetch(rawUrl)
+        
         if (!response.ok) throw new Error('Error al cargar el cuento')
         text = await response.text()
 
         // Guardamos en localStorage para uso offline
-        localStorage.setItem(`story_${storyName}`, text)
+        localStorage.setItem(cacheKey, text)
       }
+
+      // Extraer el nombre del archivo (sin la extensión .txt)
+      const fileName = storyPath.split('/').pop()?.replace('.txt', '') || 'Sin nombre'
 
       // Verificar si ya existe en las lecturas
       const existingReading = readings.find(r =>
-        r.type === 'predefined' && r.name === storyName.replace('.txt', '')
+        r.type === 'predefined' && r.path === storyPath
       )
 
       if (existingReading) {
         loadReading(existingReading)
       } else {
         const newReading = storageService.addReading({
-          name: storyName.replace('.txt', ''),
+          name: fileName,
           content: text,
-          type: 'predefined'
+          path: storyPath,
+          type: 'predefined',
+          category: categoryName
         })
         setReadings(storageService.getAllReadings())
         loadReading(newReading)
