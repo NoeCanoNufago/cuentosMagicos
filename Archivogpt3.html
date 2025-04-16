@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lector RSVP - Para Niños</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Reset básico */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-gradient-light: linear-gradient(45deg, #ffcce6, #ccf2ff, #ffffcc, #e6ffcc);
+      --container-bg-light: rgba(255, 255, 255, 0.9);
+      --container-border-light: #a587ca;
+      --text-color-light: #444;
+      --header-color-light: #8e44ad;
+      --header-subtitle-light: #7d3c98;
+      --option-bg-light: rgba(210, 230, 255, 0.5);
+      --option-label-light: #3498db;
+      --display-bg-light: linear-gradient(to bottom, #e0f7fa, #bbdefb);
+      --cell-border-light: #b3e5fc;
+      --cell-bg-light: white;
+      --audio-bg-light: rgba(230, 240, 255, 0.7);
+      
+      /* Tema oscuro */
+      --bg-gradient-dark: linear-gradient(45deg, #2c003e, #002642, #191900, #0e2600);
+      --container-bg-dark: rgba(30, 30, 40, 0.95);
+      --container-border-dark: #5d4777;
+      --text-color-dark: #e0e0e0;
+      --header-color-dark: #bb86fc;
+      --header-subtitle-dark: #b388ff;
+      --option-bg-dark: rgba(40, 50, 70, 0.7);
+      --option-label-dark: #64b5f6;
+      --display-bg-dark: linear-gradient(to bottom, #263238, #1a2327);
+      --cell-border-dark: #546e7a;
+      --cell-bg-dark: #37474f;
+      --audio-bg-dark: rgba(40, 50, 80, 0.7);
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Marker Felt', cursive, sans-serif;
+      background: var(--bg-gradient-light);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      padding: 10px;
+      color: var(--text-color-light);
+      transition: all 0.3s ease;
+    }
+
+    body.dark-theme {
+      background: var(--bg-gradient-dark);
+      color: var(--text-color-dark);
+    }
+
+    @keyframes gradient {
+      0% {background-position: 0% 50%}
+      50% {background-position: 100% 50%}
+      100% {background-position: 0% 50%}
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: var(--container-bg-light);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border: 3px solid var(--container-border-light);
+      transition: all 0.3s ease;
+    }
+
+    body.dark-theme .container {
+      background: var(--container-bg-dark);
+      border-color: var(--container-border-dark);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    header h1 {
+      font-size: 32px;
+      color: var(--header-color-light);
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      transition: color 0.3s ease;
+    }
+    header p {
+      font-size: 18px;
+      color: var(--header-subtitle-light);
+      transition: color 0.3s ease;
+    }
+
+    body.dark-theme header h1 {
+      color: var(--header-color-dark);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    body.dark-theme header p {
+      color: var(--header-subtitle-dark);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    /* Botón de cambio de tema */
+    .theme-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #f39c12;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg);
+    }
+
+    /* Sección de carga de archivo */
+    .upload-section {
+      text-align: center;
+    }
+    .upload-section input[type="file"] {
+      display: none;
+    }
+    .upload-section label {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(to right, #ff9966, #ff5e62);
+      color: #fff;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 18px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    .upload-section label:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+    }
+    #fileName {
+      margin-top: 10px;
+      font-style: italic;
+      color: #6a5acd;
+      transition: color 0.3s ease;
+    }
+
+    body.dark-theme #fileName {
+      color: #a48fe8;
+    }
+
+    /* Opciones de configuración */
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 15px;
+      background: var(--option-bg-light);
+      padding: 15px;
+      border-radius: 15px;
+      transition: background 0.3s ease;
+    }
+    
+    body.dark-theme .options {
+      background: var(--option-bg-dark);
+    }
+    
+    .option-group {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+    .option-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: var(--option-label-light);
+      font-size: 18px;
+      transition: color 0.3s ease;
+    }
+    
+    body.dark-theme .option-group label {
+      color: var(--option-label-dark);
+    }
+    
+    .option-group input[type="range"] {
+      width: 100%;
+      height: 20px;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      border-radius: 10px;
+      cursor: pointer;
+      outline: none;
+    }
+    .option-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 25px;
+      height: 25px;
+      background: #ff7675;
+      border-radius: 50%;
+      border: 3px solid white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-group input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Área de visualización */
+    .display-section {
+      background: var(--display-bg-light);
+      padding: 20px;
+      border-radius: 15px;
+      min-height: 150px;
+      text-align: center;
+      font-family: 'Comic Sans MS', sans-serif;
+      font-size: 28px;
+      overflow-x: auto;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    body.dark-theme .display-section {
+      background: var(--display-bg-dark);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    }
+    
+    .row {
+      white-space: nowrap;
+      margin-bottom: 8px;
+    }
+    .cell {
+      display: inline-block;
+      width: 22px; /* Celdas más angostas */
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      border: 2px solid var(--cell-border-light);
+      margin: 2px;
+      border-radius: 8px;
+      background: var(--cell-bg-light);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    
+    body.dark-theme .cell {
+      border-color: var(--cell-border-dark);
+      background: var(--cell-bg-dark);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      color: #e0e0e0;
+    }
+    
+    .red {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    body.dark-theme .red {
+      color: #ff6b6b;
+    }
+
+    /* Controles */
+    .controls {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .controls button {
+      padding: 12px 20px;
+      margin: 8px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .controls button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+    }
+    .controls button:disabled {
+      background: linear-gradient(to right, #bdc3c7, #95a5a6);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* Reproductor de audio */
+    .audio-player {
+      margin: 15px auto;
+      background: var(--audio-bg-light);
+      padding: 10px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 500px;
+      transition: background 0.3s ease;
+    }
+    
+    body.dark-theme .audio-player {
+      background: var(--audio-bg-dark);
+    }
+    
+    .audio-player h3 {
+      color: var(--option-label-light);
+      margin-bottom: 10px;
+      transition: color 0.3s ease;
+    }
+    
+    body.dark-theme .audio-player h3 {
+      color: var(--option-label-dark);
+    }
+    
+    .audio-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+    }
+    .audio-button {
+      background: #9b59b6;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .audio-button:hover {
+      transform: scale(1.1);
+      background: #8e44ad;
+    }
+    .volume-control {
+      width: 100px;
+    }
+
+    /* Decoraciones adicionales */
+    .decoration {
+      position: absolute;
+      font-size: 30px;
+      opacity: 0.7;
+      animation: float 3s ease-in-out infinite;
+      z-index: -1;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .deco-1 { top: 5%; left: 5%; color: #ff9ff3; animation-delay: 0s; }
+    .deco-2 { top: 10%; right: 10%; color: #feca57; animation-delay: 0.5s; }
+    .deco-3 { bottom: 15%; left: 8%; color: #55efc4; animation-delay: 1s; }
+    .deco-4 { bottom: 10%; right: 5%; color: #74b9ff; animation-delay: 1.5s; }
+
+    body.dark-theme .deco-1 { color: #6f2da8; }
+    body.dark-theme .deco-2 { color: #a67c00; }
+    body.dark-theme .deco-3 { color: #2a7d63; }
+    body.dark-theme .deco-4 { color: #3a5c7d; }
+
+    /* Ajustes responsivos para móviles */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 24px;
+      }
+      .cell {
+        width: 18px;
+        height: 30px;
+        line-height: 30px;
+        font-size: 18px;
+      }
+      .controls button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+    }
+
+    /* Estilos adicionales para el reproductor mejorado */
+    .audio-source-toggle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    
+    .audio-source-btn {
+      padding: 8px 15px;
+      margin: 0 5px;
+      border-radius: 20px;
+      border: 2px solid #9b59b6;
+      background: transparent;
+      color: var(--option-label-light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    
+    body.dark-theme .audio-source-btn {
+      color: var(--option-label-dark);
+      border-color: #8e44ad;
+    }
+    
+    .audio-source-btn.active {
+      background: linear-gradient(to right, #9b59b6, #8e44ad);
+      color: white;
+    }
+    
+    .audio-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    
+    .music-status {
+      font-size: 14px;
+      margin-top: 8px;
+      color: var(--option-label-light);
+      font-style: italic;
+    }
+    
+    body.dark-theme .music-status {
+      color: var(--option-label-dark);
+    }
+    
+    .audio-loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(155, 89, 182, 0.3);
+      border-radius: 50%;
+      border-top-color: #9b59b6;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Estilos para la sección de cuentos disponibles */
+    .available-stories {
+      margin: 15px auto;
+      background: var(--option-bg-light);
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+    
+    body.dark-theme .available-stories {
+      background: var(--option-bg-dark);
+    }
+    
+    .available-stories h3 {
+      color: var(--option-label-light);
+      margin-bottom: 15px;
+      transition: color 0.3s ease;
+    }
+    
+    body.dark-theme .available-stories h3 {
+      color: var(--option-label-dark);
+    }
+    
+    .story-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .story-button {
+      padding: 10px 15px;
+      background: linear-gradient(to right, #3498db, #2980b9);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    
+    .story-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+      background: linear-gradient(to right, #2980b9, #1f6faa);
+    }
+  </style>
+</head>
+<body>
+  <!-- Decoraciones animadas -->
+  <div class="decoration deco-1">🌟</div>
+  <div class="decoration deco-2">🚀</div>
+  <div class="decoration deco-3">🎈</div>
+  <div class="decoration deco-4">🌈</div>
+
+  <div class="container">
+    <header>
+      <button id="themeToggle" class="theme-toggle" title="Cambiar tema">
+        <i class="fas fa-sun"></i>
+      </button>
+      <h1>Lector Mágico RSVP</h1>
+      <p>¡Sube un cuento y aprende a leer más rápido con diversión!</p>
+    </header>
+
+    <div class="section upload-section">
+      <input type="file" id="fileInput" accept=".txt">
+      <label for="fileInput"><i class="fas fa-book-open"></i> Elige un cuento</label>
+      <div id="fileName"></div>
+    </div>
+
+    <!-- Nueva sección de cuentos disponibles -->
+    <div class="available-stories">
+      <h3>Cuentos Disponibles</h3>
+      <div class="story-buttons">
+        <button class="story-button" data-filename="Abecedario.txt">Abecedario</button>
+        <button class="story-button" data-filename="Adela La Pescadora.txt">Adela La Pescadora</button>
+        <button class="story-button" data-filename="Santurantikuy.txt">Santurantikuy</button>
+      </div>
+    </div>
+
+    <div class="audio-player">
+      <h3>Música de fondo</h3>
+      
+      <div class="audio-source-toggle">
+        <button id="localMusicBtn" class="audio-source-btn active">Música Local</button>
+        <button id="mubertMusicBtn" class="audio-source-btn">Música Mubert</button>
+      </div>
+      
+      <div id="localMusicControls" class="audio-controls">
+        <button id="playMusic" class="audio-button"><i class="fas fa-play"></i></button>
+        <button id="pauseMusic" class="audio-button"><i class="fas fa-pause"></i></button>
+        <select id="musicSelector" class="volume-control">
+          <option value="musica1.mp3">Música Relajante</option>
+          <option value="https://cdn.pixabay.com/download/audio/2022/03/15/audio_942316a823.mp3">Música Divertida</option>
+          <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d16343a8ae.mp3">Música Alegre</option>
+        </select>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.5" class="volume-control">
+      </div>
+      
+      <div id="mubertMusicControls" class="audio-controls" style="display: none;">
+        <button id="toggleMubertMusic" class="audio-button"><i class="fas fa-play"></i></button>
+        <div>
+          <input type="range" id="mubertVolumeControl" min="0" max="1" step="0.1" value="0.5" class="volume-control">
+        </div>
+        <div id="mubertStatus" class="music-status">Listo para reproducir música ambiental</div>
+      </div>
+      
+      <audio id="backgroundMusic" loop></audio>
+    </div>
+
+    <div class="section options">
+      <div class="option-group">
+        <label for="spacesRange">Espacio para letras (<span id="spacesCount">20</span>)</label>
+        <input type="range" id="spacesRange" min="15" max="35" value="20">
+      </div>
+      <div class="option-group">
+        <label for="speedRange">Velocidad (PPM: <span id="speedDisplay">50</span>)</label>
+        <input type="range" id="speedRange" min="50" max="700" step="25" value="50">
+      </div>
+    </div>
+
+    <div class="section display-section" id="displayArea">
+      <div>¡Aquí verás las palabras cuando subas un cuento!</div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" disabled>Iniciar</button>
+      <button id="pauseBtn" disabled>Pausar</button>
+      <button id="nextBtn" disabled>Siguiente</button>
+      <button id="resetBtn" disabled>Reiniciar</button>
+    </div>
+  </div>
+
+  <script>
+    let words = [];
+    let currentIndex = 0;
+    let interval = null;
+    let wordsPerMinute = 300;
+    let totalCells = 20;
+
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const displayArea = document.getElementById('displayArea');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const spacesRange = document.getElementById('spacesRange');
+    const speedRange = document.getElementById('speedRange');
+    const spacesCountDisplay = document.getElementById('spacesCount');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const themeToggle = document.getElementById('themeToggle');
+    const storyButtons = document.querySelectorAll('.story-button');
+
+    // Función para gestionar el tema
+    function initTheme() {
+      // Verificar si hay una preferencia guardada
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+
+    // Cambiar tema al hacer clic
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDarkMode = document.body.classList.contains('dark-theme');
+      
+      // Cambiar el ícono según el tema
+      if (isDarkMode) {
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // Inicializar tema al cargar la página
+    initTheme();
+
+    // Actualizar cantidad de espacios según slider
+    spacesRange.addEventListener('input', () => {
+      totalCells = parseInt(spacesRange.value);
+      spacesCountDisplay.textContent = totalCells;
+      // Si ya se cargó alguna palabra, se redibuja la actual
+      if(words.length > 0 && currentIndex > 0) {
+        displayWord(words[currentIndex - 1]);
+      }
+    });
+
+    // Actualizar velocidad según slider
+    speedRange.addEventListener('input', () => {
+      wordsPerMinute = parseInt(speedRange.value);
+      speedDisplay.textContent = wordsPerMinute;
+      // Si se está en modo automático, se reinicia el intervalo con la nueva velocidad
+      if(interval) {
+        pauseAuto();
+        startAuto();
+      }
+    });
+
+    // Procesar archivo .txt
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      fileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        words = text.split(/\s+/).filter(w => w.length > 0);
+        if (words.length > 0) {
+          currentIndex = 0;
+          startBtn.disabled = false;
+          nextBtn.disabled = false;
+          resetBtn.disabled = false;
+          displayWord(words[currentIndex]);
+          currentIndex++;
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Función para mostrar una palabra en formato de "grid" con celdas fijas
+    function displayWord(word) {
+      displayArea.innerHTML = '';
+      if (!word || word.length === 0) {
+        displayArea.textContent = "No hay palabra para mostrar";
+        return;
+      }
+
+      // Calcular índice ORP: mínimo(floor(longitud/2), 3)
+      let orpIndex = Math.min(Math.floor(word.length / 2), 3);
+
+      // Primera fila: arreglo de celdas
+      let row = new Array(totalCells).fill('');
+
+      // Calcular posición de inicio para el prefijo (para que la letra ORP quede en la 4ª celda, índice 3)
+      let startIndex = 3 - orpIndex;
+      for (let i = 0; i < orpIndex; i++) {
+        if(startIndex + i >= 0 && startIndex + i < totalCells) {
+          row[startIndex + i] = word[i];
+        }
+      }
+      // Colocar la letra ORP (en rojo) en la posición 3
+      row[3] = '<span class="red">' + word[orpIndex] + '</span>';
+      // Colocar letras posteriores en la misma fila, a partir del índice 4
+      let usedSuffix = 0;
+      for (let i = orpIndex + 1; i < word.length && (4 + usedSuffix) < totalCells; i++) {
+        row[4 + usedSuffix] = word[i];
+        usedSuffix++;
+      }
+
+      let html = '<div class="row">';
+      for (let i = 0; i < totalCells; i++) {
+        html += '<span class="cell">' + (row[i] !== '' ? row[i] : '&nbsp;') + '</span>';
+      }
+      html += '</div>';
+
+      // Si la palabra tiene más letras, se generan filas adicionales sin reubicar letra roja
+      let remainingIndex = orpIndex + 1 + usedSuffix;
+      while (remainingIndex < word.length) {
+        let rowExtra = new Array(totalCells).fill('');
+        for (let i = 0; i < totalCells && remainingIndex < word.length; i++, remainingIndex++) {
+          rowExtra[i] = word[remainingIndex];
+        }
+        html += '<div class="row">';
+        for (let i = 0; i < totalCells; i++) {
+          html += '<span class="cell">' + (rowExtra[i] !== '' ? rowExtra[i] : '&nbsp;') + '</span>';
+        }
+        html += '</div>';
+      }
+      
+      displayArea.innerHTML = html;
+    }
+
+    // Función para mostrar la siguiente palabra
+    function nextWord() {
+      if (currentIndex < words.length) {
+        displayWord(words[currentIndex]);
+        currentIndex++;
+      } else {
+        pauseAuto();
+      }
+    }
+
+    // Iniciar lectura automática
+    function startAuto() {
+      if (interval) return;
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      let msPerWord = 60000 / wordsPerMinute;
+      interval = setInterval(nextWord, msPerWord);
+    }
+
+    // Pausar lectura automática
+    function pauseAuto() {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    // Reiniciar lectura
+    function reset() {
+      pauseAuto();
+      currentIndex = 0;
+      if (words.length > 0) {
+        displayWord(words[currentIndex]);
+        currentIndex++;
+      } else {
+        displayArea.textContent = "No hay palabras para mostrar";
+      }
+    }
+
+    // Eventos de botones
+    startBtn.addEventListener('click', startAuto);
+    pauseBtn.addEventListener('click', pauseAuto);
+    nextBtn.addEventListener('click', nextWord);
+    resetBtn.addEventListener('click', reset);
+
+    // Variables para el reproductor de audio de Mubert
+    let mubertAudio = null;
+    let isMubertLoading = false;
+    
+    // Elementos del DOM para el reproductor mejorado
+    const localMusicBtn = document.getElementById('localMusicBtn');
+    const mubertMusicBtn = document.getElementById('mubertMusicBtn');
+    const localMusicControls = document.getElementById('localMusicControls');
+    const mubertMusicControls = document.getElementById('mubertMusicControls');
+    const toggleMubertMusic = document.getElementById('toggleMubertMusic');
+    const mubertVolumeControl = document.getElementById('mubertVolumeControl');
+    const mubertStatus = document.getElementById('mubertStatus');
+
+    // Audio player
+    const playMusic = document.getElementById('playMusic');
+    const pauseMusic = document.getElementById('pauseMusic');
+    const volumeControl = document.getElementById('volumeControl');
+    const musicSelector = document.getElementById('musicSelector');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+
+    // Cambiar entre reproductor local y Mubert
+    localMusicBtn.addEventListener('click', () => {
+      localMusicBtn.classList.add('active');
+      mubertMusicBtn.classList.remove('active');
+      localMusicControls.style.display = 'flex';
+      mubertMusicControls.style.display = 'none';
+      
+      // Pausar música de Mubert si está reproduciéndose
+      if (mubertAudio && !mubertAudio.paused) {
+        mubertAudio.pause();
+        toggleMubertMusic.innerHTML = '<i class="fas fa-play"></i>';
+      }
+    });
+    
+    mubertMusicBtn.addEventListener('click', () => {
+      mubertMusicBtn.classList.add('active');
+      localMusicBtn.classList.remove('active');
+      mubertMusicControls.style.display = 'flex';
+      localMusicControls.style.display = 'none';
+      
+      // Pausar música local si está reproduciéndose
+      if (!backgroundMusic.paused) {
+        backgroundMusic.pause();
+      }
+    });
+
+    // Control de música local (existente)
+    playMusic.addEventListener('click', () => {
+      backgroundMusic.src = musicSelector.value;
+      backgroundMusic.volume = volumeControl.value;
+      backgroundMusic.play();
+    });
+
+    pauseMusic.addEventListener('click', () => {
+      backgroundMusic.pause();
+    });
+
+    volumeControl.addEventListener('input', () => {
+      backgroundMusic.volume = volumeControl.value;
+    });
+
+    musicSelector.addEventListener('change', () => {
+      const wasPlaying = !backgroundMusic.paused;
+      backgroundMusic.src = musicSelector.value;
+      if (wasPlaying) {
+        backgroundMusic.play();
+      }
+    });
+    
+    // Control de música de Mubert
+    toggleMubertMusic.addEventListener('click', () => {
+      if (!mubertAudio) {
+        loadMubertMusic();
+        return;
+      }
+      
+      if (mubertAudio.paused) {
+        mubertAudio.play();
+        toggleMubertMusic.innerHTML = '<i class="fas fa-pause"></i>';
+      } else {
+        mubertAudio.pause();
+        toggleMubertMusic.innerHTML = '<i class="fas fa-play"></i>';
+      }
+    });
+    
+    mubertVolumeControl.addEventListener('input', () => {
+      if (mubertAudio) {
+        mubertAudio.volume = mubertVolumeControl.value;
+      }
+    });
+    
+    // Función para cargar música desde la API de Mubert
+    function loadMubertMusic() {
+      if (isMubertLoading) return;
+      
+      isMubertLoading = true;
+      mubertStatus.innerHTML = '<span class="audio-loader"></span> Cargando música ambiental...';
+      toggleMubertMusic.disabled = true;
+      
+      fetch('https://mubert.com/api/render/ambient')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error en la respuesta de la API: ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          mubertAudio = new Audio(data.url);
+          mubertAudio.loop = true;
+          mubertAudio.volume = mubertVolumeControl.value;
+          
+          mubertAudio.addEventListener('canplaythrough', () => {
+            toggleMubertMusic.disabled = false;
+            isMubertLoading = false;
+            mubertStatus.textContent = 'Música ambiental lista para reproducir';
+            mubertAudio.play();
+            toggleMubertMusic.innerHTML = '<i class="fas fa-pause"></i>';
+          });
+          
+          mubertAudio.addEventListener('error', () => {
+            handleMubertError('Error al cargar el audio');
+          });
+        })
+        .catch(error => {
+          handleMubertError('Error al obtener música: ' + error.message);
+          console.error('Error con la API de Mubert:', error);
+        });
+    }
+    
+    function handleMubertError(message) {
+      isMubertLoading = false;
+      toggleMubertMusic.disabled = false;
+      mubertStatus.textContent = message;
+      toggleMubertMusic.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+    }
+
+    // Nuevo código para cargar cuentos predefinidos
+    storyButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const storyFilename = this.getAttribute('data-filename');
+        loadPredefinedStory(storyFilename);
+      });
+    });
+
+    // Función para cargar un cuento predefinido
+    function loadPredefinedStory(storyName) {
+      const storyPath = storyName; // Los archivos están en la misma carpeta
+      
+      // Actualizar el nombre del archivo seleccionado
+      fileName.textContent = storyName;
+      
+      // Realizar la solicitud para cargar el archivo
+      fetch(storyPath)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error al cargar el cuento: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(text => {
+          // Procesar el texto igual que con la carga manual
+          words = text.split(/\s+/).filter(w => w.length > 0);
+          if (words.length > 0) {
+            currentIndex = 0;
+            startBtn.disabled = false;
+            nextBtn.disabled = false;
+            resetBtn.disabled = false;
+            displayWord(words[currentIndex]);
+            currentIndex++;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          fileName.textContent = `Error: No se pudo cargar ${storyName}`;
+        });
+    }
+  </script>
+</body>
+</html>
