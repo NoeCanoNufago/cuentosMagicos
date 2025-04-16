@@ -15,7 +15,7 @@ function App() {
   const [words, setWords] = useState<Word[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [totalCells, setTotalCells] = useState(13)
+  const [totalCells, setTotalCells] = useState(20)
   const [wordsPerMinute, setWordsPerMinute] = useState(50)
   const [volume, setVolume] = useState(0.5)
   const [showTextPreview, setShowTextPreview] = useState(true)
@@ -154,11 +154,11 @@ function App() {
     }
   }
 
-  const loadPredefinedStory = async (storyPath: string, categoryName: string) => {
+  const loadPredefinedStory = async (storyName: string, folderPath: string = '') => {
     try {
       // Primero intentamos cargar desde localStorage
-      const cacheKey = `story_${storyPath}`
-      const cachedStory = localStorage.getItem(cacheKey)
+      const storyKey = `story_${folderPath ? folderPath + '/' : ''}${storyName}`
+      const cachedStory = localStorage.getItem(storyKey)
       let text: string
 
       if (cachedStory) {
@@ -166,37 +166,49 @@ function App() {
         console.log('Cargando historia desde caché local')
       } else {
         // Si no está en caché, la cargamos desde GitHub
-        console.log('Cargando historia desde GitHub:', storyPath)
+        console.log('Cargando historia desde GitHub')
         
-        // Construimos la URL para el contenido raw
-        const rawUrl = storyPath.replace('https://api.github.com/repos/NoeCanoNufago/cuentosMagicos/contents/', 
-                                        'https://raw.githubusercontent.com/NoeCanoNufago/cuentosMagicos/main/')
-        const response = await fetch(rawUrl)
+        // Corregir la construcción de la URL para evitar la duplicación de paths
+        let apiUrl = `https://raw.githubusercontent.com/NoeCanoNufago/cuentosMagicos/main/src/lectere/`;
         
-        if (!response.ok) throw new Error('Error al cargar el cuento')
+        if (folderPath) {
+          // Eliminar "src/lectere/" si está presente en la ruta para evitar duplicaciones
+          const cleanPath = folderPath.replace('src/lectere/', '');
+          // Asegurar que la ruta termine con una barra
+          const formattedPath = cleanPath.endsWith('/') ? cleanPath : cleanPath + '/';
+          apiUrl += `${formattedPath}${storyName}`;
+        } else {
+          apiUrl += storyName;
+        }
+        
+        console.log('URL de descarga:', apiUrl);
+          
+        const response = await fetch(apiUrl)
+        if (!response.ok) throw new Error(`Error al cargar el cuento: ${response.status} ${response.statusText}`)
         text = await response.text()
 
         // Guardamos en localStorage para uso offline
-        localStorage.setItem(cacheKey, text)
+        localStorage.setItem(storyKey, text)
       }
 
-      // Extraer el nombre del archivo (sin la extensión .txt)
-      const fileName = storyPath.split('/').pop()?.replace('.txt', '') || 'Sin nombre'
+      // Crear un nombre único para la lectura que incluya la ruta
+      const readingName = folderPath 
+        ? `${folderPath.split('/').pop()} - ${storyName.replace('.txt', '')}`
+        : storyName.replace('.txt', '');
 
       // Verificar si ya existe en las lecturas
       const existingReading = readings.find(r =>
-        r.type === 'predefined' && r.path === storyPath
+        r.type === 'predefined' && r.name === readingName
       )
 
       if (existingReading) {
         loadReading(existingReading)
       } else {
         const newReading = storageService.addReading({
-          name: fileName,
+          name: readingName,
           content: text,
-          path: storyPath,
           type: 'predefined',
-          category: categoryName
+          path: folderPath ? `${folderPath}${storyName}` : storyName
         })
         setReadings(storageService.getAllReadings())
         loadReading(newReading)
@@ -325,7 +337,13 @@ function App() {
             {activeSection === 'reader' && (
               <div className="space-y-8 animate-fadeIn">
                 <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl py-8 px-2 shadow-xl">
-                  <div className="flex justify-end mb-4">
+                  <div className="flex justify-between mb-4">
+                    
+                    {currentReading && (
+                      <div className="ml-4 flex items-center text-lg font-medium text-slate-700 dark:text-slate-300">
+                        {currentReading.name}
+                      </div>
+                    )}
                     <button
                       onClick={() => setShowTextPreview(!showTextPreview)}
                       className="text-sm px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-200"

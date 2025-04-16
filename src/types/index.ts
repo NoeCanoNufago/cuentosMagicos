@@ -32,28 +32,12 @@ export interface ReadingBookmark {
   timestamp: string;
 }
 
-export interface GitHubDir {
-  name: string;
-  path: string;
-  url: string;
-  type: 'dir';
-}
-
-export interface GitHubFile {
-  name: string;
-  path: string;
-  url: string;
-  download_url: string;
-  type: 'file';
-}
-
 export interface Reading {
   id?: string;
   name: string;
   content?: string;
   path?: string;
   type: 'predefined' | 'custom';
-  category?: string;
   timestamp?: string;
   lastPosition?: number;
   bookmarks?: ReadingBookmark[];
